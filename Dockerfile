@@ -3,9 +3,6 @@ FROM nginx
 
 WORKDIR /app
 
-ARG API_URL
-ENV API_URL=${API_URL}
-
 # 将构建文件复制到 Nginx 静态文件目录
 COPY dist/ /usr/share/nginx/html/
 
