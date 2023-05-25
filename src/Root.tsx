@@ -10,7 +10,7 @@ export default function Root() {
     }
 
     const search = () => {
-        fetch(`${import.meta.env.VITE_API_URL}/${searchInputValue}`)
+        fetch(`${import.meta.env.VITE_API_URL}/api/dicts/jmdict/search/${searchInputValue}`)
             .then(res => {
                 if (!res.ok) {
                     res.json()
