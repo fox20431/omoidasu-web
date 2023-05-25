@@ -55,6 +55,7 @@ jobs:
       - name: Build Docker image
         run: |
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
+            cd ~/omoidasu-web/; \
             docker build --build-arg API_URL=${{ secrets.API_URL }} . --tag fox20431/omoidasu-web:${{ env.VERSION }} -f ~/omoidasu-web/Dockerfile; \
             "
       - name: Run the Docker image
@@ -62,5 +63,5 @@ jobs:
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
             docker container stop omoidasu-web; \
             docker container rm omoidasu-web; \
-            docker run -d --name omoidasu-web -p 9080:80 fox20431/omoidasu-web:${{ env.VERSION }}; \
+            docker run --restart=unless-stopped -d --name omoidasu-web -p 9080:80 fox20431/omoidasu-web:${{ env.VERSION }}; \
             "
