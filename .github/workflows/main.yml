@@ -13,6 +13,7 @@ jobs:
         node-version: [18.x]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -27,12 +28,11 @@ jobs:
           restore-keys: npm-
       - name: Set the version for ENV
         run: |
-          echo "VERSION=${node -p "require('./package.json').version"}" >> $GITHUB_ENV
-      - name: Install npm package
-        run: |
-          npm install
+          echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
       - name: Build the web project
         run: |
+          export API_URL=${{ secrets.API_URL }}
+          npm install
           npm run build
       - name: Configure SSH
         run: |
@@ -44,6 +44,7 @@ jobs:
       - name: Create workspace on the remote server
         run: |
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
+            rm -rf ~/omoidasu-web; \
             mkdir -p ~/omoidasu-web; \
             mkdir -p ~/omoidasu-web/dist; \
             "
@@ -55,5 +56,12 @@ jobs:
       - name: Build Docker image
         run: |
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
-            docker build --build-arg API_URL=${{ secrets.API_URL }} . --tag fox20431/omoidasu-web:${{ env.VERSION }} -f ~/omoidasu-web/Dockerfile; \
+            docker build ./omoidasu-web/ --tag fox20431/omoidasu-web:${{ env.VERSION }}; \
+            "
+      - name: Run the Docker image
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
+            docker container stop omoidasu-web; \
+            docker container rm omoidasu-web; \
+            docker run --restart=unless-stopped -d --name omoidasu-web -p 9080:80 fox20431/omoidasu-web:${{ env.VERSION }}; \
             "
