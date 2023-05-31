@@ -1,6 +1,8 @@
 # 思い出す　Web
 
+In order to follow the trend of the times, I decided to rewrite it with `nextjs`.
 
+Please move to `https://github.com/fox20431/omoidasu-next-app`.
 
 ## ABOUT GITHUB ACTIONS WORKFLOWS
 
